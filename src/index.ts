@@ -11,6 +11,11 @@ const typeDefs = `#graphql
   type Query {
     books: [Book]
   }
+
+  # Bookを追加するmutationを追記
+  type Mutation {
+    addBook(title: String, author: String): Book
+  }
 `;
 
 const books = [
@@ -26,8 +31,18 @@ const books = [
 
 const resolvers = {
     Query: {
-      books: () => books,
+        books: () => books,
     },
+    Mutation: {
+        addBook(parent, args: {title:string, author: string}){
+            const book = {
+                author: args.author,
+                title: args.title,
+            };
+            books.push(book)
+            return book;
+        }
+      }
 };
 
 const server = new ApolloServer({
