@@ -1,4 +1,9 @@
+scalar DateTime
+
 type Book {
+  id: Int
+  createdAt: DateTime
+  updatedAt: DateTime
   title: String
   author: String
 }
