@@ -11,3 +11,5 @@ generates:
   ./graphql.schema.json:
     plugins:
       - "introspection"
+  # config:
+  #   contextType: src/typedefs/context.ts

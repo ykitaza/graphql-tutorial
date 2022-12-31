@@ -144,9 +144,13 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "Book",
-              "ofType": null
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Book",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null

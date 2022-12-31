@@ -8,58 +8,51 @@ import type { Resolvers } from "./generated/graphql"
 
 const prisma = new PrismaClient()
 
-async function main() {
-  // await prisma.book.create({
-  //   data:{
-  //     title: "intial-title",
-  //     author: "initial-author"
-  //   }
-  // });
-
-  const allBooks = await prisma.book.findMany()
-  console.log(allBooks)
-
-const schema = loadSchemaSync('src/typedefs/schema.graphql', {
-  loaders: [new GraphQLFileLoader()],
-});
-
-
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
-  },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
-
-const resolvers: Resolvers = {
-  Query: {
-    books: () => books,
-  },
-  Mutation: {
-    addBook(parent, args) {
-      const book = {
-        author: args.author,
-        title: args.title,
-      };
-      books.push(book)
-      return book;
-    }
+interface Context {
+  dbsource: {
+    prisma: PrismaClient;
   }
-};
+}
+
+async function main() {
+
+  const schema = loadSchemaSync('src/typedefs/schema.graphql', {
+    loaders: [new GraphQLFileLoader()],
+  });
 
 
-const schemaWithResolvers = addResolversToSchema({ schema, resolvers });
-const server = new ApolloServer({ schema: schemaWithResolvers });
 
-const { url } = await startStandaloneServer(server, {
-  listen: { port: 4000 },
-});
+  const resolvers: Resolvers = {
+    Query: {
+      books: async (parent, args, context: Context) => await context.dbsource.prisma.book.findMany(),
+    },
+    Mutation: {
+      addBook: async (parent, args, context: Context) => {
+        await prisma.book.create({
+          data: {
+            title: args.title,
+            author: args.author
+          }
+        });
+        return await context.dbsource.prisma.book.findMany()
+      }
+    }
+  };
 
-console.log(`🚀  Server ready at: ${url}`);
+
+  const schemaWithResolvers = addResolversToSchema({ schema, resolvers });
+  const server = new ApolloServer({ schema: schemaWithResolvers, });
+
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 4000 },
+    context: async () => ({
+      dbsource: {
+        prisma: prisma
+      }
+    })
+  });
+
+  console.log(`🚀  Server ready at: ${url}`);
 }
 
 
