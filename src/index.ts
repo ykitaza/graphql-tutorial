@@ -1,57 +1,47 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
+import { loadSchemaSync } from '@graphql-tools/load';
+import { addResolversToSchema } from '@graphql-tools/schema';
 
-const typeDefs = `#graphql
+const schema = loadSchemaSync('src/schema.graphql', {
+  loaders: [new GraphQLFileLoader()],
+});
 
-  type Book {
-    title: String
-    author: String
-  }
-
-  type Query {
-    books: [Book]
-  }
-
-  # Bookを追加するmutationを追記
-  type Mutation {
-    addBook(title: String, author: String): Book
-  }
-`;
 
 const books = [
-    {
-      title: 'The Awakening',
-      author: 'Kate Chopin',
-    },
-    {
-      title: 'City of Glass',
-      author: 'Paul Auster',
-    },
-  ];
+  {
+    title: 'The Awakening',
+    author: 'Kate Chopin',
+  },
+  {
+    title: 'City of Glass',
+    author: 'Paul Auster',
+  },
+];
 
 const resolvers = {
-    Query: {
-        books: () => books,
-    },
-    Mutation: {
-        addBook(parent, args: {title:string, author: string}){
-            const book = {
-                author: args.author,
-                title: args.title,
-            };
-            books.push(book)
-            return book;
-        }
-      }
+  Query: {
+    books: () => books,
+  },
+  Mutation: {
+    addBook(parent, args: { title: string, author: string }) {
+      const book = {
+        author: args.author,
+        title: args.title,
+      };
+      books.push(book)
+      return book;
+    }
+  }
 };
 
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-  });
-  
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-  });
-  
-  console.log(`🚀  Server ready at: ${url}`);
+
+const schemaWithResolvers = addResolversToSchema({ schema, resolvers });
+const server = new ApolloServer({ schema: schemaWithResolvers });
+
+const { url } = await startStandaloneServer(server, {
+  listen: { port: 4000 },
+});
+
+console.log(`🚀  Server ready at: ${url}`);
