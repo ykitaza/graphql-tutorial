@@ -3,6 +3,20 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { loadSchemaSync } from '@graphql-tools/load';
 import { addResolversToSchema } from '@graphql-tools/schema';
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+async function main() {
+  await prisma.book.create({
+    data:{
+      title: "intial-title",
+      author: "initial-author"
+    }
+  });
+
+  const allBooks = await prisma.book.findMany()
+  console.log(allBooks)
 
 const schema = loadSchemaSync('src/schema.graphql', {
   loaders: [new GraphQLFileLoader()],
@@ -45,3 +59,15 @@ const { url } = await startStandaloneServer(server, {
 });
 
 console.log(`🚀  Server ready at: ${url}`);
+}
+
+
+main()
+  .then(async () => {
+    await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })
