@@ -7,7 +7,8 @@
   "scripts": {
     "compile": "tsc",
     "start": "npm run compile && node ./dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "codegen": "gql-gen --watch"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,11 @@
     "prisma": "^4.8.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.16.2",
+    "@graphql-codegen/introspection": "^2.2.3",
+    "@graphql-codegen/typescript": "^2.8.6",
+    "@graphql-codegen/typescript-operations": "^2.5.11",
+    "@graphql-codegen/typescript-resolvers": "^2.7.11",
     "@types/node": "^18.11.18",
     "typescript": "^4.9.4"
   }

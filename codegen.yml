@@ -1,0 +1,13 @@
+ 
+overwrite: true
+# スキーマファイル
+schema: src/typedefs/*graphql 
+generates:
+  # 生成する型定義ファイルのパス
+  src/generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"

@@ -3,22 +3,23 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { loadSchemaSync } from '@graphql-tools/load';
 import { addResolversToSchema } from '@graphql-tools/schema';
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
+import type { Resolvers } from "./generated/graphql"
 
 const prisma = new PrismaClient()
 
 async function main() {
-  await prisma.book.create({
-    data:{
-      title: "intial-title",
-      author: "initial-author"
-    }
-  });
+  // await prisma.book.create({
+  //   data:{
+  //     title: "intial-title",
+  //     author: "initial-author"
+  //   }
+  // });
 
   const allBooks = await prisma.book.findMany()
   console.log(allBooks)
 
-const schema = loadSchemaSync('src/schema.graphql', {
+const schema = loadSchemaSync('src/typedefs/schema.graphql', {
   loaders: [new GraphQLFileLoader()],
 });
 
@@ -34,12 +35,12 @@ const books = [
   },
 ];
 
-const resolvers = {
+const resolvers: Resolvers = {
   Query: {
     books: () => books,
   },
   Mutation: {
-    addBook(parent, args: { title: string, author: string }) {
+    addBook(parent, args) {
       const book = {
         author: args.author,
         title: args.title,
